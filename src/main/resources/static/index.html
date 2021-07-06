@@ -1,10 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Courses</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+    #form_container{
+        display: none;
+        max-width: 90%;
+    }
+    #add_course{
+        display: none;
+    }
+    #main{
+        margin: auto;
+        max-width: 80%;
+        padding: 10px;
+    }
+    #alert{
+        display: none;
+    }
+    </style>
 </head>
+
 <body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">Courses</a>
+          </div>
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#">Info</a></li>
+
+          </ul>
+        </div>
+      </nav>
+<div id="main">
+    <h1>Courses</h1>
+
+<div id="form_container">
+        <label class="control-label col-sm-2" for="inputName">Course Name:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="inputName" placeholder="Enter Course Name" name="name">
+        </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="inputTeacher">Name of the Teacher:</label>
+        <div class="col-sm-10">          
+          <input type="text" class="form-control" id="inputTeacher" placeholder="Enter Teacher name" name="teacher">
+        </div>
+      </div>
+      <div class="form-group">        
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" onclick="postData()" class="btn btn-default" id="add_course">Add Course</button>
+        </div>
+
+    </div>
+</div>
+
+    <br><br>
+    <button type="button" class="btn btn-primary" id="new_course">New Course</button>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="alert alert-danger" id="alert">
+        <strong>Error!</strong> Please fill in all the fields of the form.
+      </div>
+    <br>
+    <div class="container">
+        <table class="table" id="course_table">
+            <thead>
+            <tr>
+                <th>Name of the Course</th>
+                <th>Teacher of the Course</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div> 
+    <script>
+
+$("#new_course").click(function(){
+    $("#form_container").show();
+    $("#add_course").show();
+    $("#new_course").hide();
+  });
+
+  
+  
+
+        function getData() {
+            $.ajax({
+                url: 'http://localhost:8080/api/courses/all',
+                type: 'get',
+                success: function (data) {
+                    $.each(data, function (index, value) {
+                        $('#course_table').append('<tr><td>' + value.name + '</td><td>' + value.teacher + '</td></tr>');
+                    });
+
+                }
+            });
+        }
+
+
+        function postData() {
+            // Check if name and teacher of the course are not empty
+            if (!$('#inputName').val() || !$('#inputTeacher').val()) {
+                $('#alert').show();
+            } else {
+                $('#alert').hide();
+                var nameFromInput = $("#inputName").val();
+                var teacherFromInput = $("#inputTeacher").val();
+
+                var course = {
+                    name: nameFromInput,
+                    teacher: teacherFromInput
+                };
+
+                var courseJson = JSON.stringify(course);
+
+                //Do POST request with body.
+                $.ajax({
+                    url: 'http://localhost:8080/api/courses/new',
+                    type: 'post',
+                    data: courseJson,
+                    contentType: "application/json",
+                    success: function (data) {
+                            getData();
+                        //Reset form
+                        $('#inputName').val('');
+                        $('#inputTeacher').val('');
+
+                    }
+                });
+
+            }
+
+        }
+        // run the method when page is loaded.
+        $(function () {
+            getData();
+        })
+
+    </script>
 
 </body>
+
 </html>
